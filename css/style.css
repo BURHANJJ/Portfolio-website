@@ -56,6 +56,8 @@ ul {
     height: var(--header-height);
     display: flex;
     align-items: center;
+    padding-right: inherit;
+    /* Inherit padding-right from body to stop shift */
 }
 
 .header-container {
@@ -171,7 +173,70 @@ ul {
     text-align: center;
     padding: 60px 5%;
     overflow: hidden;
+    position: relative;
     min-height: calc(100vh - var(--header-height));
+}
+
+/* Decorative Background Orbs */
+.hero-bg-orbs {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: floatOrb 10s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, rgba(67, 97, 238, 0) 70%);
+    top: -150px;
+    left: -150px;
+}
+
+.orb-2 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(242, 100, 42, 0.12) 0%, rgba(242, 100, 42, 0) 70%);
+    bottom: -100px;
+    right: 5%;
+    animation-delay: -5s;
+    animation-duration: 12s;
+}
+
+@keyframes floatOrb {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(40px, 60px) scale(1.1);
+    }
+}
+
+/* Hero Content Entry Animations */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUpAnim 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fadeUpAnim {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .hero-container-layout {
@@ -191,28 +256,79 @@ ul {
     margin-top: -120px;
 }
 
-.hero-text h1 {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
+.portfolio-title {
+    font-size: 5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+    font-family: 'Inter', 'Outfit', sans-serif;
+}
+
+.portfolio-title .port {
+    color: var(--primary-color);
+    /* Blue from theme */
+}
+
+.portfolio-title .folio {
+    color: var(--text-color);
+    /* Dark text from theme */
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
     font-weight: 800;
     color: var(--text-color);
-    line-height: 1.2;
+    margin-bottom: 20px;
 }
 
-.hero-highlight {
-    color: #8c52ff;
-    position: relative;
-    display: inline-block;
-    /* Add subtle neon glow for light theme */
-    text-shadow: 0 4px 15px rgba(140, 82, 255, 0.2);
+.hero-details {
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.hero-text p {
+.hero-details .name-text {
     font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.hero-details .edu-bold {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.hero-details .edu-text {
+    font-size: 1.05rem;
+    font-weight: 500;
     color: var(--text-light);
-    line-height: 1.6;
-    min-height: 2em;
-    /* Ensure height doesnt collapse when empty */
+    line-height: 1.4;
+}
+
+.hero-quote {
+    border-left: 4px solid var(--primary-color);
+    /* Theme blue border */
+    border-radius: 4px;
+    padding: 10px 0 10px 20px;
+    max-width: 90%;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.hero-quote:hover {
+    transform: translateX(10px);
+    background-color: rgba(67, 97, 238, 0.03);
+    /* Extremely subtle blue tint on hover */
+}
+
+.hero-quote p {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--text-light);
+    line-height: 1.7;
 }
 
 /* Typewriter Cursor */
@@ -259,8 +375,8 @@ ul {
     will-change: transform;
     touch-action: none;
     /* Prevent scrolling on touch */
-    transform: rotate(45deg);
-    /* Start rotated for drop */
+    transform: rotate(0deg);
+    /* Start at 0deg so it doesn't flash left on F5 */
 }
 
 .pendulum-container:active {
@@ -419,6 +535,90 @@ ul {
 }
 
 /* =========================================
+   404 ERROR PAGE
+   ========================================= */
+.error-page .main-content {
+    background-color: var(--bg-color);
+    /* Use a simpler background for the error page */
+}
+
+.error-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    max-width: 1000px;
+    width: 100%;
+    z-index: 10;
+}
+
+.error-illustration {
+    flex: 1;
+    max-width: 400px;
+    position: relative;
+}
+
+.illustration-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    padding-bottom: 90%;
+    /* Maintain aspect ratio 1:1 */
+    background-color: var(--bg-secondary);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.unplugged-svg {
+    width: 100%;
+    height: auto;
+}
+
+.error-text {
+    flex: 1;
+    max-width: 450px;
+    text-align: left;
+}
+
+.error-code {
+    font-family: 'Inter', sans-serif;
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    line-height: 1;
+    letter-spacing: -5px;
+    margin-bottom: 0;
+    text-shadow: -8px 0px 0px var(--bg-secondary);
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.error-desc {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* =========================================
    RESPONSIVE DESIGN
    ========================================= */
 @media screen and (max-width: 768px) {
@@ -484,6 +684,23 @@ ul {
         margin-top: 20px;
     }
 
+    .portfolio-title {
+        font-size: 3.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .hero-details {
+        align-items: center;
+    }
+
+    .hero-quote {
+        max-width: 100%;
+        text-align: left;
+    }
+
     .hero-badge-container {
         order: 1;
         width: 100%;
@@ -494,6 +711,67 @@ ul {
         top: -80px;
         transform: scale(0.8);
         transform-origin: top center;
+    }
+
+    /* --- 404 Page --- */
+    .error-content {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    .error-container {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .error-text {
+        text-align: center;
+        max-width: 500px;
+    }
+
+    .error-illustration {
+        max-width: 300px;
+    }
+}
+
+/* Extra Small Devices */
+@media screen and (max-width: 480px) {
+    .portfolio-title {
+        font-size: 2.8rem;
+        letter-spacing: -2px;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-details .name-text {
+        font-size: 1.15rem;
+    }
+
+    .hero-details .edu-text {
+        font-size: 0.95rem;
+    }
+
+    .hero-quote p {
+        font-size: 0.95rem;
+    }
+
+    .pendulum-container {
+        transform: scale(0.65);
+    }
+
+    /* --- 404 Page --- */
+    .error-code {
+        font-size: 6rem;
+    }
+
+    .error-title {
+        font-size: 1.8rem;
+    }
+
+    .error-desc {
+        font-size: 1rem;
     }
 }
 
@@ -594,6 +872,11 @@ ul {
     pointer-events: none;
 }
 
+/* Instantly hide splash screen on reload via inline head script */
+html.hide-splash .splash-screen {
+    display: none !important;
+}
+
 @keyframes fadeInUp {
     to {
         opacity: 1;
@@ -601,7 +884,9 @@ ul {
     }
 }
 
-/* Disable scrolling while splash screen is active */
+/* Disable scrolling while splash screen or badge is active */
 body.no-scroll {
     overflow: hidden;
+    padding-right: 17px;
+    /* Compensate for removed scrollbar to prevent layout shift */
 }

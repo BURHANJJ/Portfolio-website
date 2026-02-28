@@ -6,66 +6,82 @@ document.addEventListener('DOMContentLoaded', () => {
     const type3 = document.getElementById('splash-typewriter-3');
 
     if (splashScreen && type1 && type2 && type3) {
-        document.body.classList.add('no-scroll');
 
-        const text1 = type1.textContent.trim();
-        const text2 = type2.textContent.trim();
-        const text3 = type3.textContent.trim();
+        // Check if splash screen has been shown in this session
+        if (!sessionStorage.getItem('splashShown')) {
+            sessionStorage.setItem('splashShown', 'true');
+            document.body.classList.add('no-scroll');
 
-        type1.textContent = '';
-        type2.textContent = '';
-        type3.textContent = '';
+            const text1 = type1.textContent.trim();
+            const text2 = type2.textContent.trim();
+            const text3 = type3.textContent.trim();
 
-        const typingSpeed = 40; // ms per char
+            type1.textContent = '';
+            type2.textContent = '';
+            type3.textContent = '';
 
-        // Start typing first line after the icons animate in (0.8s)
-        setTimeout(() => {
-            type1.classList.add('typewriter-cursor');
-            let i = 0;
+            const typingSpeed = 40; // ms per char
 
-            function typeLine1() {
-                if (i < text1.length) {
-                    type1.textContent += text1.charAt(i);
-                    i++;
-                    setTimeout(typeLine1, typingSpeed);
-                } else {
-                    // Start next line
-                    type1.classList.remove('typewriter-cursor');
-                    type2.classList.add('typewriter-cursor');
-                    let j = 0;
+            // Start typing first line after the icons animate in (0.8s)
+            setTimeout(() => {
+                type1.classList.add('typewriter-cursor');
+                let i = 0;
 
-                    function typeLine2() {
-                        if (j < text2.length) {
-                            type2.textContent += text2.charAt(j);
-                            j++;
-                            setTimeout(typeLine2, typingSpeed);
-                        } else {
-                            type2.classList.remove('typewriter-cursor');
-                            type3.classList.add('typewriter-cursor');
-                            let k = 0;
+                function typeLine1() {
+                    if (i < text1.length) {
+                        type1.textContent += text1.charAt(i);
+                        i++;
+                        setTimeout(typeLine1, typingSpeed);
+                    } else {
+                        // Start next line
+                        type1.classList.remove('typewriter-cursor');
+                        type2.classList.add('typewriter-cursor');
+                        let j = 0;
 
-                            function typeLine3() {
-                                if (k < text3.length) {
-                                    type3.textContent += text3.charAt(k);
-                                    k++;
-                                    setTimeout(typeLine3, typingSpeed);
-                                } else {
-                                    type3.classList.remove('typewriter-cursor');
-                                    // Finish typing, wait a moment, then hide splash screen
-                                    setTimeout(() => {
-                                        splashScreen.classList.add('hidden');
-                                        document.body.classList.remove('no-scroll');
-                                    }, 1200);
+                        function typeLine2() {
+                            if (j < text2.length) {
+                                type2.textContent += text2.charAt(j);
+                                j++;
+                                setTimeout(typeLine2, typingSpeed);
+                            } else {
+                                type2.classList.remove('typewriter-cursor');
+                                type3.classList.add('typewriter-cursor');
+                                let k = 0;
+
+                                function typeLine3() {
+                                    if (k < text3.length) {
+                                        type3.textContent += text3.charAt(k);
+                                        k++;
+                                        setTimeout(typeLine3, typingSpeed);
+                                    } else {
+                                        type3.classList.remove('typewriter-cursor');
+                                        // Finish typing, wait a moment, then hide splash screen
+                                        setTimeout(() => {
+                                            splashScreen.classList.add('hidden');
+                                            document.body.classList.remove('no-scroll');
+                                            // Dispatch event to trigger drop animation when ready
+                                            window.dispatchEvent(new CustomEvent('splashFinished', { detail: { isRefresh: false } }));
+                                        }, 1200);
+                                    }
                                 }
+                                setTimeout(typeLine3, 200);
                             }
-                            setTimeout(typeLine3, 200);
                         }
+                        setTimeout(typeLine2, 200); // Small pause before second line
                     }
-                    setTimeout(typeLine2, 200); // Small pause before second line
                 }
-            }
-            typeLine1();
-        }, 1000); // Wait for icon fade in animation (1s)
+                typeLine1();
+            }, 1000); // Wait for icon fade in animation (1s)
+
+        } else {
+            // Already shown in this session, hide instantly and trigger drop
+            splashScreen.style.display = 'none';
+            document.body.classList.remove('no-scroll');
+            // Dispatch event to trigger drop animation immediately
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('splashFinished', { detail: { isRefresh: true } }));
+            }, 100);
+        }
     }
 
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
@@ -229,38 +245,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Delay the drop-in animation until the splash screen is fully gone
-        setTimeout(() => {
+        // Wait for splash screen to finish or skip before dropping badge
+        window.addEventListener('splashFinished', (e) => {
+            const isRefresh = e.detail && e.detail.isRefresh;
+
             // Give browser a frame to ensure CSS initial rotation is applied
             requestAnimationFrame(() => {
-                // Apply a CSS transition for the initial drop
-                pendulum.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                if (lanyard) lanyard.style.transition = 'height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                if (badgeWrapper) badgeWrapper.style.transition = 'top 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                // Initialize physics for a natural drop
+                if (isRefresh) {
+                    angle = 0;              // Start straight
+                    stretchY = 0;           // Start at resting position
+                    angularVelocity = (Math.random() > 0.5 ? 1 : -1) * (1 + Math.random() * 1.5); // Very gentle swing
+                    stretchVelocity = 0;
+                } else {
+                    angle = 0;              // Drop straight down
+                    stretchY = -150;        // Start slightly up, less chaotic bounce
+                    angularVelocity = (Math.random() - 0.5) * 3; // Very slight random twist
+                    stretchVelocity = 0;    // Starts with 0 velocity, gravity pulls it down
+                }
 
-                // Trigger layout recalculation
-                void pendulum.offsetWidth;
+                // Remove transition to let JS physics engine handle every frame flawlessly
+                pendulum.style.transition = 'none';
+                if (lanyard) lanyard.style.transition = 'none';
+                if (badgeWrapper) badgeWrapper.style.transition = 'none';
 
-                // Remove initial CSS transform states to drop it
-                pendulum.style.transform = 'rotate(0deg)';
-                if (lanyard) lanyard.style.height = '500px';
-                if (badgeWrapper) badgeWrapper.style.top = '500px';
+                // Initial layout update so JS physics starts from the right place
+                pendulum.style.transform = `rotate(${angle}deg)`;
 
-                setTimeout(() => {
-                    // Remove transitions before JS physics take over completely
-                    pendulum.style.transition = 'none';
-                    if (lanyard) lanyard.style.transition = 'none';
-                    if (badgeWrapper) badgeWrapper.style.transition = 'none';
-
-                    // Ensure Physics values match the new resting state so it doesn't snap back
-                    angle = 0;
-                    stretchY = 0;
-                    angularVelocity = 15; // Give it a swing velocity so it swings when JS takes over
-                    stretchVelocity = 10; // Give it a bounce velocity 
-
-                    requestAnimationFrame(simulatePendulum);
-                }, 800);
+                // Start physics simulation
+                requestAnimationFrame(simulatePendulum);
             });
-        }, 2500); // Wait 2.5s for splash screen to hide completely
+        });
     }
 });
